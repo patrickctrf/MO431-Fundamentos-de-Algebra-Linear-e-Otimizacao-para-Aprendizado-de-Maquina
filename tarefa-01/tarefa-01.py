@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from sklearn.decomposition import TruncatedSVD
 
 # ================Lendo-arquivo-NPY=============================================
@@ -7,7 +8,7 @@ from sklearn.decomposition import TruncatedSVD
 X = np.load("X.npy")
 
 # ================Imprimindo-imagem-primeira pessoa=============================
-plt.imshow(X[0].reshape(50, 37))
+plt.imshow(X[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
 # ================Fatoração-SVD-Padrao==========================================
@@ -36,9 +37,9 @@ print("Matriz V^-1: ", str(Vh.shape))
 # reconstruida a partir do SVD compacto.
 matriz_de_diferencas = X - np.matmul(np.matmul(U, D), Vh)
 
-print("\nMáximo Erro SVD Padrão: " + str(matriz_de_diferencas.max()))
-print("Erro Médio SVD Padrão: " + str(matriz_de_diferencas.mean()))
-print("Razão entre Máximo Erro e Erro Médio SVD Padrão: " + str(matriz_de_diferencas.max() / matriz_de_diferencas.mean()))
+print("\nMáximo Erro SVD Padrão: " + str(np.absolute(matriz_de_diferencas).max()))
+print("Erro Médio SVD Padrão: " + str(np.absolute(matriz_de_diferencas).mean()))
+print("Razão entre Máximo Erro e Erro Médio SVD Padrão: " + str(np.absolute(matriz_de_diferencas).max() / np.absolute(matriz_de_diferencas).mean()))
 
 # ================Fatoração-SVD-Compacto========================================
 U, D, Vh = np.linalg.svd(X, full_matrices=False)
@@ -66,9 +67,9 @@ print("Matriz V^-1: ", str(Vh.shape))
 # reconstruida a partir do SVD compacto.
 matriz_de_diferencas = X - np.matmul(np.matmul(U, D), Vh)
 
-print("\nMáximo Erro SVD Compacto: " + str(matriz_de_diferencas.max()))
-print("Erro Médio SVD Compacto: " + str(matriz_de_diferencas.mean()))
-print("Razão entre Máximo Erro e Erro Médio SVD Compacto: " + str(matriz_de_diferencas.max() / matriz_de_diferencas.mean()))
+print("\nMáximo Erro SVD Compacto: " + str(np.absolute(matriz_de_diferencas).max()))
+print("Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas).mean()))
+print("Razão entre Máximo Erro e Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas).max() / np.absolute(matriz_de_diferencas).mean()))
 
 # ===================Matriz-Reduzida============================================
 
@@ -85,7 +86,7 @@ print("\nFormato da matriz reconstruida: " + str(matriz_reconstruida.shape))
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida=======================
 
-plt.imshow(matriz_reconstruida[0].reshape(50, 37))
+plt.imshow(matriz_reconstruida[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
 # ===================Truncated-SVD-SKLEARN======================================
@@ -115,11 +116,11 @@ print("Matriz V^-1: ", str(Vh.shape))
 # reconstruida a partir do TruncatedSVD do sklearn.
 matriz_de_diferencas = X - matriz_reconstruida_sklearn
 
-print("\nMáximo Erro TruncatedSVD do sklearn: " + str(matriz_de_diferencas.max()))
-print("Erro Médio TruncatedSVD do sklearn: " + str(matriz_de_diferencas.mean()))
-print("Razão entre Máximo Erro e Erro Médio TruncatedSVD do sklearn: " + str(matriz_de_diferencas.max() / matriz_de_diferencas.mean()))
+print("\nMáximo Erro TruncatedSVD do sklearn: " + str(np.absolute(matriz_de_diferencas).max()))
+print("Erro Médio TruncatedSVD do sklearn: " + str(np.absolute(matriz_de_diferencas).mean()))
+print("Razão entre Máximo Erro e Erro Médio TruncatedSVD do sklearn: " + str(np.absolute(matriz_de_diferencas).max() / np.absolute(matriz_de_diferencas).mean()))
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida-TruncatedSVD-sklear===
 
-plt.imshow(matriz_reconstruida_sklearn[0].reshape(50, 37))
+plt.imshow(matriz_reconstruida_sklearn[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
