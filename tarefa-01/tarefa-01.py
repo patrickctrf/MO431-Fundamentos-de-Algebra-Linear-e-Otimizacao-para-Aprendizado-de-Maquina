@@ -41,6 +41,24 @@ print("\nMáximo Erro SVD Padrão: " + str(np.absolute(matriz_de_diferencas).max
 print("Erro Médio SVD Padrão: " + str(np.absolute(matriz_de_diferencas).mean()))
 print("Razão entre Máximo Erro e Erro Médio SVD Padrão: " + str(np.absolute(matriz_de_diferencas).max() / np.absolute(matriz_de_diferencas).mean()))
 
+# ===================Matriz-Reduzida-SVD-Padrao=================================
+
+k = 100
+matriz_reduzida_full_matrices = np.matmul(U[:, :k], D[:k, :k])
+
+print("\nFormato da matriz reduzida SVD full matrices: " + str(matriz_reduzida_full_matrices.shape))
+
+# ===================Matriz-Reconstruida-SVD-Padrao=============================
+
+matriz_reconstruida_full_matrices = np.matmul(matriz_reduzida_full_matrices, Vh[:k, :])
+
+print("\nFormato da matriz reconstruida SVD full matrices: " + str(matriz_reconstruida_full_matrices.shape))
+
+# ===================Exibindo-na-Tela-Matriz-Reconstruida-SVD-full-matrices=====
+
+plt.imshow(matriz_reconstruida_full_matrices[0].reshape(50, 37), cmap=cm.gray)
+plt.show()
+
 # ================Fatoração-SVD-Compacto========================================
 U, D, Vh = np.linalg.svd(X, full_matrices=False)
 
@@ -71,22 +89,35 @@ print("\nMáximo Erro SVD Compacto: " + str(np.absolute(matriz_de_diferencas).ma
 print("Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas).mean()))
 print("Razão entre Máximo Erro e Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas).max() / np.absolute(matriz_de_diferencas).mean()))
 
-# ===================Matriz-Reduzida============================================
+# ===================Matriz-Reduzida-SVD-Compacto===============================
 
 k = 100
-matriz_reduzida = np.matmul(U[:, :k], D[:k, :k])
+matriz_reduzida_svd_compacto = np.matmul(U[:, :k], D[:k, :k])
 
-print("\nFormato da matriz reduzida: " + str(matriz_reduzida.shape))
+print("\nFormato da matriz reduzida a partir do SVD compacto: " + str(matriz_reduzida_svd_compacto.shape))
 
-# ===================Matriz-Reconstruida========================================
+# ===================Matriz-Reconstruida-SVD-Compacto===========================
 
-matriz_reconstruida = np.matmul(matriz_reduzida, Vh[:k, :])
+matriz_reconstruida_svd_compacto = np.matmul(matriz_reduzida_svd_compacto, Vh[:k, :])
 
-print("\nFormato da matriz reconstruida: " + str(matriz_reconstruida.shape))
+print("\nFormato da matriz reconstruida a partir do SVD compacto: " + str(matriz_reconstruida_svd_compacto.shape))
+
+# ====================Full-matrices-VS-Compacto-SVD=============================
+
+# Calculamos a diferenca entre cada elemento da matriz original e da matriz
+# reconstruida a partir de cada SVD
+matriz_de_diferencas_svd_full_matrices = X - matriz_reconstruida_full_matrices
+matriz_de_diferencas_svd_compacto = X - matriz_reconstruida_svd_compacto
+
+print("\nMáximo Erro SVD Compacto: " + str(np.absolute(matriz_de_diferencas_svd_full_matrices).max()))
+print("Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas_svd_full_matrices).mean()))
+
+print("\nMáximo Erro SVD Compacto: " + str(np.absolute(matriz_de_diferencas_svd_compacto).max()))
+print("Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas_svd_compacto).mean()))
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida=======================
 
-plt.imshow(matriz_reconstruida[0].reshape(50, 37), cmap=cm.gray)
+plt.imshow(matriz_reconstruida_svd_compacto[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
 # ===================Truncated-SVD-SKLEARN======================================
