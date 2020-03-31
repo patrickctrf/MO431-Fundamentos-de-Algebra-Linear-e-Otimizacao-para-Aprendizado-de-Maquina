@@ -8,6 +8,7 @@ from sklearn.decomposition import TruncatedSVD
 X = np.load("X.npy")
 
 # ================Imprimindo-imagem-primeira pessoa=============================
+plt.title("Primeira imagem original")
 plt.imshow(X[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
@@ -56,6 +57,7 @@ print("\nFormato da matriz reconstruida SVD full matrices: " + str(matriz_recons
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida-SVD-full-matrices=====
 
+plt.title("Primeira imagem da matriz_reconstruida_full_matrices")
 plt.imshow(matriz_reconstruida_full_matrices[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
@@ -117,6 +119,7 @@ print("Erro Médio SVD Compacto: " + str(np.absolute(matriz_de_diferencas_svd_co
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida=======================
 
+plt.title("Primeira imagem da matriz_reconstruida_svd_compacto")
 plt.imshow(matriz_reconstruida_svd_compacto[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
 
@@ -153,5 +156,6 @@ print("Razão entre Máximo Erro e Erro Médio TruncatedSVD do sklearn: " + str(
 
 # ===================Exibindo-na-Tela-Matriz-Reconstruida-TruncatedSVD-sklear===
 
+plt.title("Primeira imagem da matriz_reconstruida_sklearn")
 plt.imshow(matriz_reconstruida_sklearn[0].reshape(50, 37), cmap=cm.gray)
 plt.show()
