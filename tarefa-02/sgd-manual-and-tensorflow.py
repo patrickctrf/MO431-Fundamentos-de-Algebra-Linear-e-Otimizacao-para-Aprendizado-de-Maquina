@@ -62,10 +62,12 @@ def sgd_manual(lr=10 ** -3, max_passos=20000):
             plot_rosenbrock.append(rosenbrock_3d(x))
             break
 
+    plt.xlabel("Número de atualizações de x")
+    plt.ylabel("f(x) - Rosenbrock 3d")
     plt.plot(plot_rosenbrock)
     plt.show()
 
-    print("Número de passos do gradiente: ", len(plot_rosenbrock))
+    print("\nNúmero de passos do gradiente: ", len(plot_rosenbrock))
 
 
 def main():
