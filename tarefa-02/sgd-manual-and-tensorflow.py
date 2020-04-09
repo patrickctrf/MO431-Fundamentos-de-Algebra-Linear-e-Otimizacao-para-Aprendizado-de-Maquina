@@ -45,7 +45,7 @@ Computa o gradiente da funcao rosenbrock 3d
     return np.array([df1, df2, df3])
 
 
-def sgd_manual(lr=10 ** -3, max_passos=20000):
+def minimizacao_gradiente_explicito(lr=10 ** -3, max_passos=20000):
     """
 Realiza a minimizacao por gradiente convencional (SGD sem momento) e plota os
 resultados.
@@ -128,7 +128,7 @@ resultados.
     plt.show()
 
 
-def sgd_tensorflow(lr=10 ** -3, max_passos=20000):
+def minimizacao_gradiente_tensorflow(lr=10 ** -3, max_passos=20000):
     """
 Realiza a minimizacao por gradiente convencional (SGD sem momento) usando a API
 do tensorflow.
@@ -234,18 +234,18 @@ do tensorflow.
 def main():
     # Learning rate pequeno aumenta a chance de convergir, ao passo que diminui
     # a velocidade em que se alcanca o minimo local.
-    sgd_manual(lr=1.00 * 10 ** -4)
+    minimizacao_gradiente_explicito(lr=1.00 * 10 ** -4)
 
     # Learning rate um pouco mais alto permite diminuir o tempo de convergencia.
-    sgd_manual(lr=1.00 * 10 ** -3)
+    minimizacao_gradiente_explicito(lr=1.00 * 10 ** -3)
 
     # Learning rate alto demais causando a extrapolacao do minimo local e a
     # divergencia do gradiente.
-    sgd_manual(lr=1.62 * 10 ** -3)
+    minimizacao_gradiente_explicito(lr=1.62 * 10 ** -3)
 
-    sgd_tensorflow(lr=1.00 * 10 ** -4)
+    minimizacao_gradiente_tensorflow(lr=1.00 * 10 ** -4)
 
-    sgd_tensorflow(lr=1.00 * 10 ** -3)
+    minimizacao_gradiente_tensorflow(lr=1.00 * 10 ** -3)
 
 
 if __name__ == "__main__":
