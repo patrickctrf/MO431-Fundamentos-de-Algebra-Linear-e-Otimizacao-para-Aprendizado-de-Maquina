@@ -46,34 +46,97 @@ Computa o gradiente da funcao rosenbrock 3d
 
 
 def sgd_manual(lr=10 ** -3, max_passos=20000):
-    x = np.array([0, 0, 0])
-    x_old = np.copy(x)
-    plot_rosenbrock = list()
+    """
+Realiza a minimizacao por gradiente convencional (SGD sem momento) e plota os
+resultados.
+    :param lr: Learning Rate (deafult: 10 ** -3).
+    :param max_passos: Limite de iteracoes para minimizacao (default: 20000).
+    """
 
+    # Ponto inicial da fncao onde calcularemos o gradiente
+    x = np.array([0, 0, 0])
+    # Para calcular a variacao de um ponto "x" em relacao ao anterior, devemos
+    # salvar o anteriror.
+    x_old = np.copy(x)
+    # Uma lista para guardar os valores de cada iteracao e poder plotar os
+    # resultado ao final.
+    plot_rosenbrock = list()
+    # Uma lista para guardar os valores de "x" em cada iteracao e poder plotar
+    # os resultado ao final.
+    plot_x = list()
+
+    # A funcao de tolerancia daria erro na primeira iteracao por estarmos
+    # sobre o ponto zero. Fazemos portanto a primeira iteracao fora do loop e
+    # sem calcular a tolerancia.
     plot_rosenbrock.append(rosenbrock_3d(x))
+    plot_x.append(np.copy(x))
     x = x - lr * gradiente_rosenbrock_3d(x)
 
+    # Neste loop repetimos a sequencia de salvar o ponto anterior, calcular o
+    # gradiente, usa-lo para calcular o novo ponto e verificar o criterio de
+    # tolerancia. Temos um limite de iteracoes em "max_passos", caso o gradiente
+    # comece a divergir, mas a intencao eh que o limite de tolerancia seja
+    # batido e a instrucao "break" rompa o loop.
     for i in range(max_passos):
+        # Salva ponto anterior
         x_old = np.copy(x)
 
+        # Salva os dados para posterior plotagem
         plot_rosenbrock.append(rosenbrock_3d(x))
+        plot_x.append(np.copy(x))
+        # Usa o gradiente para plotar os novos pontos.
         x = x - lr * gradiente_rosenbrock_3d(x)
 
+        # Verifica o criterio de tolerancia
         if tolerancia(x, x_old) < 10 ** -4:
+            # Se ja estamos abaixo da tolerancia, salva o ultimo dado e encerra.
             plot_rosenbrock.append(rosenbrock_3d(x))
             break
 
-    plt.title("Gradiente manual com LR de " + str(lr))
+    # Plotamos os valores de f(x) para cada atualizacao de "x".
+    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("f(x) - Rosenbrock 3d")
     plt.plot(plot_rosenbrock)
     plt.show()
 
+    # Exibimos na tela as informacoes de interesse.
     print("\nNúmero de passos do gradiente: ", len(plot_rosenbrock))
     print("\nValor da função no mínimo local: ", rosenbrock_3d(x))
 
+    # Tranformamos em uma matriz numpy para poder usar a API de indices.
+    plot_x = np.array(plot_x)
+
+    # Abaixo plotamos os valores das ordenadas "x" para entendermos como as
+    # "hipoteses" do gradiente se comportam.
+    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.xlabel("Número de atualizações de x")
+    plt.ylabel("Valor de x1")
+    plt.plot(plot_x[:, 0].reshape(plot_x[:, 0].shape[0]))
+    plt.show()
+
+    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.xlabel("Número de atualizações de x")
+    plt.ylabel("Valor de x2")
+    plt.plot(plot_x[:, 1].reshape(plot_x[:, 0].shape[0]))
+    plt.show()
+
+    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.xlabel("Número de atualizações de x")
+    plt.ylabel("Valor de x3")
+    plt.plot(plot_x[:, 2].reshape(plot_x[:, 0].shape[0]))
+    plt.show()
+
 
 def sgd_tensorflow(lr=10 ** -3, max_passos=20000):
+    """
+Realiza a minimizacao por gradiente convencional (SGD sem momento) usando a API
+do tensorflow.
+    :param lr: Learning Rate (deafult: 10 ** -3).
+    :param max_passos: Maximo de iteracoes a realizar para a otimizacao (default: 20000).
+    :return: Valores a cada iteracao computada.
+    """
+
     # Para calcular a tolerancia, temos que saber quanto os pontos de ordenadas
     # "x" valiam antes. Para isto que servem estas variaveis.
     x1_old, x2_old, x3_old = tf.Variable(0), tf.Variable(0), tf.Variable(0)
@@ -108,7 +171,14 @@ def sgd_tensorflow(lr=10 ** -3, max_passos=20000):
 
         # Coloamos na lista de registros de dados para o grafico os valores
         # desta iteracao.
-        lista_plot.append([y.numpy(), x1.numpy(), x2.numpy(), x3.numpy(), grads[0].numpy(), grads[1].numpy(), grads[2].numpy()])
+        lista_plot.append([y.numpy(),
+                           x1.numpy(),
+                           x2.numpy(),
+                           x3.numpy(),
+                           grads[0].numpy(),
+                           grads[1].numpy(),
+                           grads[2].numpy()]
+                          )
 
         # Atualizamos as variaveis que guardam a iteracao anterior para poder
         # gerar o novo ponto "x".
@@ -127,7 +197,7 @@ def sgd_tensorflow(lr=10 ** -3, max_passos=20000):
 
     # Exibimos o grafico de saida com os valores da funcao a cada atualizacao de
     # "x".
-    plt.title("Gradiente tensorflow com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente tensorflow com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("f(x) - Rosenbrock 3d")
     plt.plot(lista_plot[:, 0].reshape(lista_plot[:, 0].shape[0]))
@@ -139,19 +209,19 @@ def sgd_tensorflow(lr=10 ** -3, max_passos=20000):
 
     # Abaixo plotamos os valores das ordenadas "x" para entendermos como as
     # "hipoteses" do gradiente se comportam.
-    plt.title("Gradiente tensorflow com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente tensorflow com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x1")
     plt.plot(lista_plot[:, 1].reshape(lista_plot[:, 0].shape[0]))
     plt.show()
 
-    plt.title("Gradiente tensorflow com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente tensorflow com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x2")
     plt.plot(lista_plot[:, 2].reshape(lista_plot[:, 0].shape[0]))
     plt.show()
 
-    plt.title("Gradiente tensorflow com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente tensorflow com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x3")
     plt.plot(lista_plot[:, 3].reshape(lista_plot[:, 0].shape[0]))
