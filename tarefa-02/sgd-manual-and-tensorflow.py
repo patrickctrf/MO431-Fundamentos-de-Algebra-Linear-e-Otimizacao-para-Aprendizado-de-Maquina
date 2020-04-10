@@ -210,7 +210,6 @@ do tensorflow.
     print("\nValor da função no mínimo local: ", rosenbrock_3d([x1.numpy(), x2.numpy(), x3.numpy()]))
     print("\nValores de x1: ", x1.numpy(), ", x2: ", x2.numpy(), "e x3: ", x3.numpy())
 
-
     # Abaixo plotamos os valores das ordenadas "x" para entendermos como as
     # "hipoteses" do gradiente se comportam.
     plt.title("Valores para cálculo do gradiente tensorflow com LR de " + str(lr))
