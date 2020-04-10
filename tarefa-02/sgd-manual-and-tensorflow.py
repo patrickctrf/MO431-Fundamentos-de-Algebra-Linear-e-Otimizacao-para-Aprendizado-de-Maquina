@@ -94,7 +94,7 @@ resultados.
             break
 
     # Plotamos os valores de f(x) para cada atualizacao de "x".
-    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente explícito com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("f(x) - Rosenbrock 3d")
     plt.plot(plot_rosenbrock)
@@ -103,25 +103,26 @@ resultados.
     # Exibimos na tela as informacoes de interesse.
     print("\nNúmero de passos do gradiente: ", len(plot_rosenbrock))
     print("\nValor da função no mínimo local: ", rosenbrock_3d(x))
+    print("Valores de x1: ", x[0], ", x2: ", x[1], "e x3: ", x[2])
 
     # Tranformamos em uma matriz numpy para poder usar a API de indices.
     plot_x = np.array(plot_x)
 
     # Abaixo plotamos os valores das ordenadas "x" para entendermos como as
     # "hipoteses" do gradiente se comportam.
-    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente explícito com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x1")
     plt.plot(plot_x[:, 0].reshape(plot_x[:, 0].shape[0]))
     plt.show()
 
-    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente explícito com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x2")
     plt.plot(plot_x[:, 1].reshape(plot_x[:, 0].shape[0]))
     plt.show()
 
-    plt.title("Valores para cálculo do gradiente manual com LR de " + str(lr))
+    plt.title("Valores para cálculo do gradiente explícito com LR de " + str(lr))
     plt.xlabel("Número de atualizações de x")
     plt.ylabel("Valor de x3")
     plt.plot(plot_x[:, 2].reshape(plot_x[:, 0].shape[0]))
@@ -134,7 +135,6 @@ Realiza a minimizacao por gradiente convencional (SGD sem momento) usando a API
 do tensorflow.
     :param lr: Learning Rate (deafult: 10 ** -3).
     :param max_passos: Maximo de iteracoes a realizar para a otimizacao (default: 20000).
-    :return: Valores a cada iteracao computada.
     """
 
     # Para calcular a tolerancia, temos que saber quanto os pontos de ordenadas
@@ -203,9 +203,13 @@ do tensorflow.
     plt.plot(lista_plot[:, 0].reshape(lista_plot[:, 0].shape[0]))
     plt.show()
 
-    # Informamos os valores de interesse.
-    print("\nNúmero de passos do gradiente: ", lista_plot.shape[0])
-    print("\nValor da função no mínimo local: ", rosenbrock_3d([x1, x2, x3]).numpy())
+    # Informamos os valores de interesse. 1 passo somado a mais devido ao
+    # deslocamento do ponto zero que fazemos incialmente para resolver a
+    # singularidade da regiao.
+    print("\nNúmero de passos do gradiente: ", lista_plot.shape[0] + 1)
+    print("\nValor da função no mínimo local: ", rosenbrock_3d([x1.numpy(), x2.numpy(), x3.numpy()]))
+    print("\nValores de x1: ", x1.numpy(), ", x2: ", x2.numpy(), "e x3: ", x3.numpy())
+
 
     # Abaixo plotamos os valores das ordenadas "x" para entendermos como as
     # "hipoteses" do gradiente se comportam.
@@ -226,9 +230,6 @@ do tensorflow.
     plt.ylabel("Valor de x3")
     plt.plot(lista_plot[:, 3].reshape(lista_plot[:, 0].shape[0]))
     plt.show()
-
-    # Retornamos a lista a quem interessar possa.
-    return lista_plot
 
 
 def main():
