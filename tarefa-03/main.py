@@ -1,3 +1,5 @@
+import time
+
 import pybobyqa
 from scipy.optimize import minimize, line_search
 from numpy import array
@@ -21,47 +23,66 @@ def grad_himmelblau(x, *args):
 
 
 def main():
+
+    # =====GRADIENTE-CONJUGADO==================================================
     x = array([4, 4])
+    t0 = time.time()
     val = minimize(himmelblau, x, method="CG", jac=None)
-    print("\nCG")
+    tf = time.time()
+    print("\nGRADIENTE-CONJUGADO")
     print("\niterações: ", val.nit)
     print("chamadas do gradiente: ", val.nfev)
     print("x: ", val.x)
     print("himmelblau(x): ", val.fun)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
     print("\n")
 
+    # ======BFGS-SEM-GRADIENTE-PASSADO==========================================
     x = array([4, 4])
+    t0 = time.time()
     val = minimize(himmelblau, x, method="L-BFGS-B", jac=None)
+    tf = time.time()
     print("\nL-BFGS-B-sem-grad")
     print("\niterações: ", val.nit)
     print("chamadas do gradiente: ", val.nfev)
     print("x: ", val.x)
     print("himmelblau(x): ", val.fun)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
     print("\n")
 
+    # ======BFGS-COM-GRADIENTE-PASSADO==========================================
     x = array([4, 4])
+    t0 = time.time()
     val = minimize(himmelblau, x, method="L-BFGS-B", jac=grad_himmelblau)
+    tf = time.time()
     print("\nL-BFGS-B-com-grad")
     print("\niterações: ", val.nit)
     print("chamadas do gradiente: ", val.nfev)
     print("x: ", val.x)
     print("himmelblau(x): ", val.fun)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
     print("\n")
 
+    # ==========NELDER-MEAN=====================================================
     x = array([4, 4])
+    t0 = time.time()
     val = minimize(himmelblau, x, method="Nelder-Mead", options={'initial_simplex':array([[-4, -4], [-4, 1], [4, -1]])})
-    print("\nNelder-mean")
+    tf = time.time()
+    print("\nNelder-mead")
     print("\niterações: ", val.nit)
-    print("chamadas do gradiente: ", val.nfev)
+    print("avaliações dos vértices do triângulo: ", val.nfev)
     print("x: ", val.x)
     print("himmelblau(x): ", val.fun)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
     print("\n")
 
+    # =======LINE-SEARCH========================================================
     x = array([4, 4])
     x_new = x.copy()
-    pk = array([-1, -1]) # -grad_himmelblau(x_new)
+    pk = array([-1, -1])  # -grad_himmelblau(x_new)
 
-    while(1):
+    t0 = time.time()
+    while (1):
         alpha, fc, gc, new_fval, old_fval, new_slope = line_search(himmelblau, grad_himmelblau, x_new, pk=pk)
 
         # Se ainda nao convergiu, continue iterando
@@ -70,23 +91,52 @@ def main():
         else:
             # Quando convergir, sai do loop
             break
-    print("\nLine-Search")
+    tf = time.time()
+    print("\nLine-Search começando na direção [-1,-1]")
     print("\niterações: ", fc)
     print("chamadas do gradiente: ", gc)
     print("x: ", x_new)
     print("himmelblau(x): ", old_fval)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
     print("\n")
 
+    x = array([4, 4])
+    x_new = x.copy()
+    pk = -grad_himmelblau(x_new)
+
+    t0 = time.time()
+    while (1):
+        alpha, fc, gc, new_fval, old_fval, new_slope = line_search(himmelblau, grad_himmelblau, x_new, pk=pk)
+
+        # Se ainda nao convergiu, continue iterando
+        if alpha is not None:
+            x_new = x_new + alpha * pk
+        else:
+            # Quando convergir, sai do loop
+            break
+    tf = time.time()
+    print("\nLine-Search começando na direção oposta ao gradiente")
+    print("\niterações: ", fc)
+    print("chamadas do gradiente: ", gc)
+    print("x: ", x_new)
+    print("himmelblau(x): ", old_fval)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
+    print("\n")
+
+    # ===========BOBYQA=========================================================
     x = array([4, 4])
     print("\nBOBYQA")
     # Estabelecendo os limites (lower <= x <= upper)
     lower = array([-10.0, -10.0])
     upper = array([10.0, 10.0])
     # Executa a minimizacao
+    t0 = time.time()
     val = pybobyqa.solve(himmelblau, x, bounds=(lower, upper))
+    tf = time.time()
 
     # Imprime resultados
     print(val)
+    print("Tempo demandado pela otimização [s]: ", tf - t0)
 
 
 
