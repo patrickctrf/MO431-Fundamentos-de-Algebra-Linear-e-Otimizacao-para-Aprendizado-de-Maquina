@@ -3,10 +3,9 @@ import hyperopt
 import numpy as np
 from hyperopt import fmin, tpe, hp
 
-from pandas import DataFrame
 from pyswarm import pso
 from scipy.optimize import dual_annealing
-from sklearn.metrics import mean_absolute_error, make_scorer
+from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.svm import SVR
 
@@ -22,6 +21,19 @@ def evaluate_svr(args):
 # Retorna o MAE tambem, mas recebendo argumentos como array
 def erro(x):
     svr_object = SVR(kernel='rbf', gamma=x[0], C=x[1], epsilon=x[2])
+    svr_object.fit(x_treino, y_treino)
+    return mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
+
+# Como hp nao possui distribuicoes uniformes nos expoentes de base dois, fazemos
+# este processo na funcao de avaliacao
+def evaluate_svr_hp(args):
+    gamma, C, epsilon = args
+
+    gamma = 2 ** gamma
+    C = 2 ** C
+
+    svr_object = SVR(kernel='rbf', gamma=gamma, C=C, epsilon=epsilon)
     svr_object.fit(x_treino, y_treino)
     return mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
@@ -113,20 +125,26 @@ if __name__ == '__main__':
 
     # ==============OTIMIZACAO-BAYESIANA========================================
 
-    # Definindo o espaco em que iremos trabalhar
-    space = [hp.uniform('gamma', 2 ** (-15), 2 ** 3),
-             hp.uniform('C', 2 ** (-5), 2 ** (15)),
+    # Definindo o espaco em que iremos trabalhar. Gamma e C serao elevados a 2
+    # na funcao de avaliacao do SVR
+    space = [hp.uniform('gamma', -15, 3),
+             hp.uniform('C', -5, 15),
              hp.uniform('epsilon', 0.05, 1.0)]
 
     # calling the hyperopt function
-    resultado = fmin(fn=evaluate_svr, space=space, algo=tpe.suggest, max_evals=125)
+    resultado = fmin(fn=evaluate_svr_hp, space=space, algo=tpe.suggest, max_evals=125)
 
     print("\n---------------------OTIMIZAÇÃO-BAYESIANA-hyperopt---------------------")
 
-    print("\nMelhor conjunto de parâmetros: \n", resultado)
+    print("\nMelhor conjunto de parâmetros: \n")
+    print("C: ", resultado["C"])
+
+    print("gamma: ", resultado["gamma"])
+
+    print("epsilon: ", resultado["epsilon"])
 
     # Calculando o modelo encontrado para verificar seu erro mean_absolute_error
-    svr_object = SVR(kernel='rbf', gamma=resultado["gamma"], C=resultado["C"], epsilon=resultado["epsilon"])
+    svr_object = SVR(kernel='rbf', gamma=2 ** resultado["gamma"], C=2 ** resultado["C"], epsilon=resultado["epsilon"])
     svr_object.fit(x_treino, y_treino)
     mae = mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
