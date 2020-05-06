@@ -1,12 +1,30 @@
+import cma
 import hyperopt
 import numpy as np
 from hyperopt import fmin, tpe, hp
 
 from pandas import DataFrame
 from pyswarm import pso
+from scipy.optimize import dual_annealing
 from sklearn.metrics import mean_absolute_error, make_scorer
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.svm import SVR
+
+
+# Retorna o MAE pra o SVR
+def evaluate_svr(args):
+    gamma, C, epsilon = args
+    svr_object = SVR(kernel='rbf', gamma=gamma, C=C, epsilon=epsilon)
+    svr_object.fit(x_treino, y_treino)
+    return mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
+
+# Retorna o MAE tambem, mas recebendo argumentos como array
+def erro(x):
+    svr_object = SVR(kernel='rbf', gamma=x[0], C=x[1], epsilon=x[2])
+    svr_object.fit(x_treino, y_treino)
+    return mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
 
 if __name__ == '__main__':
     # Dados de treino
@@ -91,18 +109,9 @@ if __name__ == '__main__':
 
     print("\nMAE teste: \n", mae)
 
-
     # ==============fim-GRID-SEARCH=============================================
 
     # ==============OTIMIZACAO-BAYESIANA========================================
-
-    # return the mean squared error
-    def evaluate_svr(args):
-        gamma, C, epsilon = args
-        svr_object = SVR(kernel='rbf', gamma=gamma, C=C, epsilon=epsilon)
-        svr_object.fit(x_treino, y_treino)
-        return mean_absolute_error(svr_object.predict(x_teste), y_teste)
-
 
     # Definindo o espaco em que iremos trabalhar
     space = [hp.uniform('gamma', 2 ** (-15), 2 ** 3),
@@ -123,22 +132,16 @@ if __name__ == '__main__':
 
     print("\nMAE teste: \n", mae)
 
-
     # ==============fim-OTIMIZACAO-BAYESIANA====================================
 
     # ======================PSO=================================================
-
-    # Funcao de avaliacao para o erro da funcao
-    def erro(x):
-        svr_object = SVR(kernel='rbf', gamma=x[0], C=x[1], epsilon=x[2])
-        svr_object.fit(x_treino, y_treino)
-        return mean_absolute_error(svr_object.predict(x_teste), y_teste)
-
 
     lb = [2 ** (-15), 2 ** (-5), 0.05]
     ub = [2 ** 3, 2 ** 15, 1.0]
 
     xopt, fopt = pso(erro, lb, ub, maxiter=11, swarmsize=11)
+
+    print("\n---------------------PSO---------------------")
 
     print("\nMAE: ", fopt)
     print("C: ", xopt[1])
@@ -146,3 +149,45 @@ if __name__ == '__main__':
     print("gamma: ", xopt[0])
 
     # ======================fim-PSO=============================================
+
+    # ======================SIMULATED-ANNEALING=================================
+
+    # Valores limite para a busca em cada um dos parametros
+    lw = [2 ** (-15), 2 ** (-5), 0.05]
+    up = [2 ** 3, 2 ** (15), 1.0]
+
+    # Valores iniciais para a busca
+    values = [1, 1, 1]
+
+    resultado = dual_annealing(evaluate_svr, bounds=list(zip(lw, up)), no_local_search=True, maxiter=125)
+
+    print("\n---------------------SIMULATED-ANNEALING---------------------")
+
+    print("\nMAE: ", resultado.fun)
+
+    print("C: ", resultado.x[1])
+
+    print("gamma: ", resultado.x[0])
+
+    print("epsilon: ", resultado.x[2])
+
+    # ======================fim-SIMULATED-ANNEALING=============================
+
+    # ======================CMA-ES==============================================
+
+    opts = cma.CMAOptions()
+    opts.set("bounds", [[2 ** (-15), 2 ** (-5), 0.05], [2 ** 3, 2 ** (15), 1.0]])
+    opts.set('maxfevals', 125)
+    parametros, es = cma.fmin2(evaluate_svr, [1, 1, 1], 0.1, opts)
+
+    print("\n---------------------CMA-ES---------------------")
+
+    print("\nMAE: ", es.result.fbest)
+
+    print("C: ", parametros[1])
+
+    print("gamma: ", parametros[0])
+
+    print("epsilon: ", parametros[2])
+
+    # ======================fim-CMA-ES==========================================
