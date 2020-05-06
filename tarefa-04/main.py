@@ -1,5 +1,9 @@
+import hyperopt
 import numpy as np
+from hyperopt import fmin, tpe, hp
+
 from pandas import DataFrame
+from pyswarm import pso
 from sklearn.metrics import mean_absolute_error, make_scorer
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.svm import SVR
@@ -51,7 +55,7 @@ if __name__ == '__main__':
 
     # ==============fim-RANDOM-SEARCH===========================================
 
-    # ==============GRID-SEARCH===============================================
+    # ==============GRID-SEARCH=================================================
 
     # Fixando a emenete para garantir resultados aleatorios reprodutiveis.
     np.random.seed(1234)
@@ -87,4 +91,58 @@ if __name__ == '__main__':
 
     print("\nMAE teste: \n", mae)
 
-    # ==============fim-GRID-SEARCH===========================================
+
+    # ==============fim-GRID-SEARCH=============================================
+
+    # ==============OTIMIZACAO-BAYESIANA========================================
+
+    # return the mean squared error
+    def evaluate_svr(args):
+        gamma, C, epsilon = args
+        svr_object = SVR(kernel='rbf', gamma=gamma, C=C, epsilon=epsilon)
+        svr_object.fit(x_treino, y_treino)
+        return mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
+
+    # Definindo o espaco em que iremos trabalhar
+    space = [hp.uniform('gamma', 2 ** (-15), 2 ** 3),
+             hp.uniform('C', 2 ** (-5), 2 ** (15)),
+             hp.uniform('epsilon', 0.05, 1.0)]
+
+    # calling the hyperopt function
+    resultado = fmin(fn=evaluate_svr, space=space, algo=tpe.suggest, max_evals=125)
+
+    print("\n---------------------OTIMIZAÇÃO-BAYESIANA-hyperopt---------------------")
+
+    print("\nMelhor conjunto de parâmetros: \n", resultado)
+
+    # Calculando o modelo encontrado para verificar seu erro mean_absolute_error
+    svr_object = SVR(kernel='rbf', gamma=resultado["gamma"], C=resultado["C"], epsilon=resultado["epsilon"])
+    svr_object.fit(x_treino, y_treino)
+    mae = mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
+    print("\nMAE teste: \n", mae)
+
+
+    # ==============fim-OTIMIZACAO-BAYESIANA====================================
+
+    # ======================PSO=================================================
+
+    # Funcao de avaliacao para o erro da funcao
+    def erro(x):
+        svr_object = SVR(kernel='rbf', gamma=x[0], C=x[1], epsilon=x[2])
+        svr_object.fit(x_treino, y_treino)
+        return mean_absolute_error(svr_object.predict(x_teste), y_teste)
+
+
+    lb = [2 ** (-15), 2 ** (-5), 0.05]
+    ub = [2 ** 3, 2 ** 15, 1.0]
+
+    xopt, fopt = pso(erro, lb, ub, maxiter=11, swarmsize=11)
+
+    print("\nMAE: ", fopt)
+    print("C: ", xopt[1])
+    print("epsilon: ", xopt[2])
+    print("gamma: ", xopt[0])
+
+    # ======================fim-PSO=============================================
