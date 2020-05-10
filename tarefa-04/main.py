@@ -13,6 +13,10 @@ from sklearn.svm import SVR
 # Retorna o MAE pra o SVR
 def evaluate_svr(args):
     gamma, C, epsilon = args
+
+    gamma = 2 ** gamma
+    C = 2 ** C
+
     svr_object = SVR(kernel='rbf', gamma=gamma, C=C, epsilon=epsilon)
     svr_object.fit(x_treino, y_treino)
     return mean_absolute_error(svr_object.predict(x_teste), y_teste)
@@ -20,7 +24,7 @@ def evaluate_svr(args):
 
 # Retorna o MAE tambem, mas recebendo argumentos como array
 def erro(x):
-    svr_object = SVR(kernel='rbf', gamma=x[0], C=x[1], epsilon=x[2])
+    svr_object = SVR(kernel='rbf', gamma=2 ** x[0], C=2 ** x[1], epsilon=x[2])
     svr_object.fit(x_treino, y_treino)
     return mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
@@ -160,22 +164,22 @@ if __name__ == '__main__':
     # Fixando a semente para garantir resultados aleatorios reprodutiveis.
     np.random.seed(1234)
 
-    lb = [2 ** (-15), 2 ** (-5), 0.05]
-    ub = [2 ** 3, 2 ** 15, 1.0]
+    lb = [-15, -5, 0.05]
+    ub = [3, 15, 1.0]
 
     xopt, fopt = pso(erro, lb, ub, maxiter=11, swarmsize=11)
 
     print("\n---------------------PSO---------------------")
 
     # Calculando o modelo encontrado para verificar seu erro mean_absolute_error
-    svr_object = SVR(kernel='rbf', gamma=xopt[0], C=xopt[1], epsilon=xopt[2])
+    svr_object = SVR(kernel='rbf', gamma=2 ** xopt[0], C=2 ** xopt[1], epsilon=xopt[2])
     svr_object.fit(x_treino, y_treino)
     mae = mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
     print("\nMAE teste: \n", mae)
-    print("C: ", xopt[1])
+    print("C: ", 2 ** xopt[1])
     print("epsilon: ", xopt[2])
-    print("gamma: ", xopt[0])
+    print("gamma: ", 2 ** xopt[0])
 
     # ======================fim-PSO=============================================
 
@@ -185,26 +189,23 @@ if __name__ == '__main__':
     np.random.seed(1234)
 
     # Valores limite para a busca em cada um dos parametros
-    lw = [2 ** (-15), 2 ** (-5), 0.05]
-    up = [2 ** 3, 2 ** (15), 1.0]
-
-    # Valores iniciais para a busca
-    values = [1, 1, 1]
+    lw = [-15, -5, 0.05]
+    up = [3, 15, 1.0]
 
     resultado = dual_annealing(evaluate_svr, bounds=list(zip(lw, up)), no_local_search=True, maxiter=125)
 
     print("\n---------------------SIMULATED-ANNEALING---------------------")
 
     # Calculando o modelo encontrado para verificar seu erro mean_absolute_error
-    svr_object = SVR(kernel='rbf', gamma=resultado.x[0], C=resultado.x[1], epsilon=resultado.x[2])
+    svr_object = SVR(kernel='rbf', gamma=2 ** resultado.x[0], C=2 ** resultado.x[1], epsilon=resultado.x[2])
     svr_object.fit(x_treino, y_treino)
     mae = mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
     print("\nMAE teste: \n", mae)
 
-    print("C: ", resultado.x[1])
+    print("C: ", 2 ** resultado.x[1])
 
-    print("gamma: ", resultado.x[0])
+    print("gamma: ", 2 ** resultado.x[0])
 
     print("epsilon: ", resultado.x[2])
 
@@ -216,22 +217,20 @@ if __name__ == '__main__':
     np.random.seed(1234)
 
     opts = cma.CMAOptions()
-    opts.set("bounds", [[2 ** (-15), 2 ** (-5), 0.05], [2 ** 3, 2 ** (15), 1.0]])
+    opts.set("bounds", [[-15, -5, 0.05], [3, 15, 1.0]])
     opts.set('maxfevals', 125)
     parametros, es = cma.fmin2(evaluate_svr, [1, 1, 1], 0.1, opts)
 
-    print("\n---------------------CMA-ES---------------------")
-
     # Calculando o modelo encontrado para verificar seu erro mean_absolute_error
-    svr_object = SVR(kernel='rbf', gamma=parametros[0], C=parametros[1], epsilon=parametros[2])
+    svr_object = SVR(kernel='rbf', gamma=2 ** parametros[0], C=2 ** parametros[1], epsilon=parametros[2])
     svr_object.fit(x_treino, y_treino)
     mae = mean_absolute_error(svr_object.predict(x_teste), y_teste)
 
     print("\nMAE teste: \n", mae)
 
-    print("C: ", parametros[1])
+    print("C: ", 2 ** parametros[1])
 
-    print("gamma: ", parametros[0])
+    print("gamma: ", 2 ** parametros[0])
 
     print("epsilon: ", parametros[2])
 
