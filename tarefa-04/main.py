@@ -6,7 +6,7 @@ from hyperopt import fmin, tpe, hp
 from pyswarm import pso
 from scipy.optimize import dual_annealing
 from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, ShuffleSplit
 from sklearn.svm import SVR
 
 
@@ -72,7 +72,8 @@ if __name__ == '__main__':
         RandomizedSearchCV(
             estimator=svr_object,
             param_distributions=parametros,
-            scoring="neg_mean_absolute_error"
+            scoring="neg_mean_absolute_error",
+            cv=ShuffleSplit(n_splits=1)
         )
 
     # Realizamos a busca atraves do treinamento
@@ -110,7 +111,8 @@ if __name__ == '__main__':
         GridSearchCV(
             estimator=svr_object,
             param_grid=parametros,
-            scoring="neg_mean_absolute_error"
+            scoring="neg_mean_absolute_error",
+            cv=ShuffleSplit(n_splits=1)
         )
 
     # Realizamos a busca atraves do treinamento
